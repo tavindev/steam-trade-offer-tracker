@@ -2,12 +2,11 @@ import { SteamTradeOffer, TradeOfferState } from "./SteamTradeOfferTrackerBase";
 
 export class TradeOffer {
     id: string;
-    asset_id: string;
-    partner_id: string;
-    time_created: number;
-    items_in_trade_length: number;
-    trade_offer_state: TradeOfferState;
-    is_our_offer: boolean;
+    assetsIds: string[];
+    partnerId: string;
+    timeCreated: number;
+    tradeOfferState: TradeOfferState;
+    isOurOffer: boolean;
 
     constructor(
         offer: Pick<
@@ -21,11 +20,19 @@ export class TradeOffer {
         >
     ) {
         this.id = offer.tradeofferid;
-        this.asset_id = offer.items_to_give[0].assetid;
-        this.partner_id = offer.accountid_other.toString();
-        this.time_created = offer.time_created;
-        this.items_in_trade_length = offer.items_to_give.length;
-        this.trade_offer_state = offer.trade_offer_state;
-        this.is_our_offer = offer.is_our_offer;
+        this.assetsIds = offer.items_to_give
+            .map((item) => item.assetid)
+            .sort((a, b) => a.localeCompare(b));
+        this.partnerId = offer.accountid_other.toString();
+        this.timeCreated = offer.time_created;
+        this.tradeOfferState = offer.trade_offer_state;
+        this.isOurOffer = offer.is_our_offer;
     }
+
+    itemsEqual = (assets_ids: string[]) => {
+        return (
+            assets_ids.sort((a, b) => a.localeCompare(b)).toString() ===
+            this.assetsIds.toString()
+        );
+    };
 }

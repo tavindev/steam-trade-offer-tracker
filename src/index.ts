@@ -1,4 +1,5 @@
 import { SteamTradeOfferTracker } from "./SteamTradeOfferTracker";
+import { SteamTradeOfferTrackerBase } from "./classes/SteamTradeOfferTrackerBase";
 
-export { SteamTradeOfferTracker };
+export { SteamTradeOfferTracker, SteamTradeOfferTrackerBase };
 export default SteamTradeOfferTracker;

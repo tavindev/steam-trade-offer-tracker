@@ -51,8 +51,9 @@ export interface SteamTradeOffer {
 }
 
 interface TrackedTrade {
-    partnerid: string;
-    assetid: string;
+    tradeId?: string | number;
+    partnerId: string;
+    assetsIds: string[];
 }
 
 export interface SteamTradeOfferTrackerConfig {
@@ -79,27 +80,22 @@ export class SteamTradeOfferTrackerBase extends EventEmitter {
         trades.forEach(async (trade) => {
             const correctTrade = offers.find(
                 (offer) =>
-                    trade.assetid === offer.asset_id &&
-                    trade.partnerid === offer.partner_id
+                    offer.itemsEqual(trade.assetsIds) &&
+                    trade.partnerId === offer.partnerId
             );
 
             if (correctTrade) {
-                if (correctTrade.items_in_trade_length !== 1) {
-                    this.emit("invalid_trade_length", {});
-                    return;
-                } else if (
-                    correctTrade.trade_offer_state === TradeOfferState.CANCELED
-                ) {
+                if (correctTrade.tradeOfferState === TradeOfferState.CANCELED) {
                     // Check if steam api key was comprimised
                     const suspiciousOffer = offers.find(
                         (offer) =>
-                            offer.asset_id === correctTrade.asset_id &&
-                            offer.partner_id !== correctTrade.partner_id &&
-                            !offer.is_our_offer &&
+                            offer.itemsEqual(correctTrade.assetsIds) &&
+                            offer.partnerId !== correctTrade.partnerId &&
+                            !offer.isOurOffer &&
                             [
                                 TradeOfferState.NEEDS_CONFIRMATION,
                                 TradeOfferState.SENT,
-                            ].includes(offer.trade_offer_state)
+                            ].includes(offer.tradeOfferState)
                     );
 
                     if (suspiciousOffer) {
@@ -110,19 +106,19 @@ export class SteamTradeOfferTrackerBase extends EventEmitter {
             } else {
                 const similarTrades = offers.filter(
                     (offer) =>
-                        (trade.assetid === offer.asset_id ||
-                            trade.partnerid === offer.partner_id) &&
+                        (offer.itemsEqual(trade.assetsIds) ||
+                            trade.partnerId === offer.partnerId) &&
                         [
                             TradeOfferState.SENT,
                             TradeOfferState.NEEDS_CONFIRMATION,
-                        ].includes(offer.trade_offer_state)
+                        ].includes(offer.tradeOfferState)
                 );
 
                 similarTrades.forEach((similarTrade) => {
-                    if (similarTrade.asset_id === trade.assetid) {
-                        this.emit("wrong_partner");
+                    if (similarTrade.itemsEqual(trade.assetsIds)) {
+                        this.emit("wrong_partner", {});
                     } else {
-                        this.emit("wrong_item");
+                        this.emit("wrong_items", {});
                     }
                 });
             }
