@@ -42,12 +42,12 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
         await tradeOfferTracker.track([
             {
-                assetid: "1",
-                partnerid: "2",
+                assetsIds: ["1"],
+                partnerId: "2",
             },
         ]);
 
-        expect(tradeOfferTracker.emit).toBeCalledWith("wrong_partner");
+        expect(tradeOfferTracker.emit).toBeCalledWith("wrong_partner", {});
     });
 
     it("should detect a compromised api key", async () => {
@@ -97,8 +97,8 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
         await tradeOfferTracker.track([
             {
-                assetid: "1",
-                partnerid: "1",
+                assetsIds: ["1"],
+                partnerId: "1",
             },
         ]);
 
@@ -108,14 +108,14 @@ describe("SteamTradeOfferTrackerBase tests", () => {
         );
     });
 
-    it("should detect invalid trade lengths", async () => {
+    it("should detect wrong items", async () => {
         tradeRepository.createTrade(
             new TradeOffer({
                 accountid_other: 1,
-                time_created: 1101,
-                trade_offer_state: TradeOfferState.NEEDS_CONFIRMATION,
+                time_created: 1100,
+                trade_offer_state: TradeOfferState.SENT,
                 tradeofferid: "1",
-                is_our_offer: false,
+                is_our_offer: true,
                 items_to_give: [
                     {
                         amount: "1",
@@ -143,14 +143,11 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
         await tradeOfferTracker.track([
             {
-                assetid: "1",
-                partnerid: "1",
+                assetsIds: ["1"],
+                partnerId: "1",
             },
         ]);
 
-        expect(tradeOfferTracker.emit).toBeCalledWith(
-            "invalid_trade_length",
-            {}
-        );
+        expect(tradeOfferTracker.emit).toBeCalledWith("wrong_items", {});
     });
 });
