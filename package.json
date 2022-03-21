@@ -1,15 +1,26 @@
 {
     "name": "steam-trade-offer-tracker",
     "version": "0.0.1",
-    "main": "index.js",
+    "main": "dist/index.js",
+    "author": {
+        "name": "Gustavo Chevrand",
+        "email": "gvwchevrand@gmail.com",
+        "url": "https://gustavo-dev.vercel.app/"
+    },
     "license": "MIT",
     "scripts": {
+        "build": "tsc",
         "test": "jest"
     },
     "devDependencies": {
+        "@swc/core": "^1.2.152",
         "@swc/jest": "^0.2.20",
+        "@types/jest": "^27.4.1",
         "@types/node": "^17.0.21",
         "jest": "^27.5.1",
         "typescript": "^4.6.2"
+    },
+    "dependencies": {
+        "axios": "^0.26.1"
     }
 }
