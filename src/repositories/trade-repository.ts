@@ -12,21 +12,20 @@ interface WebApiSentOffer {
 }
 
 export interface ITradeRepository {
-    findUserTrades(): Promise<TradeOffer[]>;
-    cancelTrade(tradeId: string): Promise<void>;
+    findUserTrades(steamApiKey: string): Promise<TradeOffer[]>;
+    cancelTrade(steamApiKey: string, tradeId: string): Promise<void>;
 }
 
 export class TradeRepository implements ITradeRepository {
     api: Axios;
 
-    constructor(steam_api_key: string) {
+    constructor() {
         this.api = axios.create({
             baseURL: "https://api.steampowered.com/IEconService",
-            params: { key: steam_api_key },
         });
     }
 
-    async findUserTrades(): Promise<TradeOffer[]> {
+    async findUserTrades(steamApiKey: string): Promise<TradeOffer[]> {
         const offers = [];
         let cursor = 0;
 
@@ -54,13 +53,14 @@ export class TradeRepository implements ITradeRepository {
         return offers.map((offer) => new TradeOffer(offer));
     }
 
-    async cancelTrade(trade_id: string): Promise<void> {
+    async cancelTrade(steamApiKey: string, tradeId: string): Promise<void> {
         await this.api.post(
             `/CancelTradeOffer/v1`,
             {},
             {
                 params: {
-                    tradeofferid: trade_id,
+                    key: steamApiKey,
+                    tradeofferid: tradeId,
                 },
             }
         );

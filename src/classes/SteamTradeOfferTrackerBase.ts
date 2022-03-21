@@ -51,13 +51,12 @@ export interface SteamTradeOffer {
 }
 
 interface TrackedTrade {
-    tradeId?: string | number;
     partnerId: string;
     assetsIds: string[];
+    tradeId?: string | number;
 }
 
 export interface SteamTradeOfferTrackerConfig {
-    steam_api_key: string;
     cancel_invalid_offers?: boolean;
     time_historical_cutoff?: number;
 }
@@ -74,8 +73,8 @@ export class SteamTradeOfferTrackerBase extends EventEmitter {
         this.time_historical_cutoff = options.time_historical_cutoff ?? 15 * 60; // Default 15 minutes
     }
 
-    track = async (trades: TrackedTrade[]) => {
-        const offers = await this.tradeRepository.findUserTrades();
+    track = async (steamApiKey: string, trades: TrackedTrade[]) => {
+        const offers = await this.tradeRepository.findUserTrades(steamApiKey);
 
         trades.forEach(async (trade) => {
             const correctTrade = offers.find(
