@@ -1,15 +1,36 @@
 {
     "name": "steam-trade-offer-tracker",
     "version": "0.0.1",
-    "main": "dist/index.js",
+    "main": "dist/index",
+    "typings": "dist/index",
     "author": {
         "name": "Gustavo Chevrand",
         "email": "gvwchevrand@gmail.com",
         "url": "https://gustavo-dev.vercel.app/"
     },
     "license": "MIT",
+    "files": [
+        "dist/index.js",
+        "dist/index.d.ts",
+        "dist/lib"
+    ],
+    "bugs": {
+        "url": "https://github.com/gustavo-dev/steam-trade-offer-tracker/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gustavo-dev/steam-trade-offer-tracker.git"
+    },
+    "keywords": [
+        "steam",
+        "trade offers",
+        "tracking"
+    ],
     "scripts": {
-        "build": "tsc",
+        "prepublishOnly": "npm run compile",
+        "compile": "npm run clean && tsc -p .",
+        "watch": "tsc -w -p .",
+        "clean": "rm -rf dist",
         "test": "jest"
     },
     "devDependencies": {
