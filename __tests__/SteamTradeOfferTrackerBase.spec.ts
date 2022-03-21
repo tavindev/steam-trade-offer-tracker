@@ -46,7 +46,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect(tradeOfferTracker.emit).toBeCalledWith("wrong_partner", {});
+        expect(tradeOfferTracker.emit).toBeCalledWith("wrongPartner", {});
     });
 
     it("should detect a compromised api key", async () => {
@@ -101,10 +101,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect(tradeOfferTracker.emit).toBeCalledWith(
-            "compromised_api_key",
-            {}
-        );
+        expect(tradeOfferTracker.emit).toBeCalledWith("compromisedApiKey", {});
     });
 
     it("should detect wrong items", async () => {
@@ -147,6 +144,6 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect(tradeOfferTracker.emit).toBeCalledWith("wrong_items", {});
+        expect(tradeOfferTracker.emit).toBeCalledWith("wrongItem", {});
     });
 });

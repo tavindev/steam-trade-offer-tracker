@@ -1,5 +1,5 @@
-import { EventEmitter } from "stream";
 import { ITradeRepository } from "../repositories/trade-repository";
+import { EventEmitterType } from "./EventEmmiterType";
 
 export enum TradeOfferState {
     INVALID = 1,
@@ -61,7 +61,14 @@ export interface SteamTradeOfferTrackerConfig {
     time_historical_cutoff?: number;
 }
 
-export class SteamTradeOfferTrackerBase extends EventEmitter {
+interface SteamTradeOfferEvents {
+    compromisedApiKey: [{}];
+    wrongItem: [{}];
+    wrongPartner: [{}];
+}
+
+// @ts-ignore
+export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOfferEvents> {
     time_historical_cutoff: number;
 
     constructor(
@@ -98,7 +105,7 @@ export class SteamTradeOfferTrackerBase extends EventEmitter {
                     );
 
                     if (suspiciousOffer) {
-                        this.emit("compromised_api_key", {});
+                        this.emit("compromisedApiKey", {});
                         return;
                     }
                 }
@@ -115,9 +122,9 @@ export class SteamTradeOfferTrackerBase extends EventEmitter {
 
                 similarTrades.forEach((similarTrade) => {
                     if (similarTrade.itemsEqual(trade.assetsIds)) {
-                        this.emit("wrong_partner", {});
+                        this.emit("wrongPartner", {});
                     } else {
-                        this.emit("wrong_items", {});
+                        this.emit("wrongItem", {});
                     }
                 });
             }
