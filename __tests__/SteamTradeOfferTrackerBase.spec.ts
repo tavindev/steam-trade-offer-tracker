@@ -8,7 +8,6 @@ import { InMemoryTradeRepository } from "../src/repositories/in-memory/in-memory
 describe("SteamTradeOfferTrackerBase tests", () => {
     const tradeRepository = new InMemoryTradeRepository();
     const tradeOfferTracker = new SteamTradeOfferTrackerBase(tradeRepository, {
-        steam_api_key: "",
         time_historical_cutoff: 15 * 60,
     });
 
@@ -40,7 +39,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             })
         );
 
-        await tradeOfferTracker.track([
+        await tradeOfferTracker.track("", [
             {
                 assetsIds: ["1"],
                 partnerId: "2",
@@ -95,7 +94,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             })
         );
 
-        await tradeOfferTracker.track([
+        await tradeOfferTracker.track("", [
             {
                 assetsIds: ["1"],
                 partnerId: "1",
@@ -141,7 +140,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             })
         );
 
-        await tradeOfferTracker.track([
+        await tradeOfferTracker.track("", [
             {
                 assetsIds: ["1"],
                 partnerId: "1",
