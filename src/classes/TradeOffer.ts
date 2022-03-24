@@ -20,19 +20,19 @@ export class TradeOffer {
         >
     ) {
         this.id = offer.tradeofferid;
-        this.assetsIds = offer.items_to_give
-            .map((item) => item.assetid)
-            .sort((a, b) => a.localeCompare(b));
+        this.assetsIds = offer.items_to_give.map((item) => item.assetid);
         this.partnerId = offer.accountid_other.toString();
         this.timeCreated = offer.time_created;
         this.tradeOfferState = offer.trade_offer_state;
         this.isOurOffer = offer.is_our_offer;
     }
 
-    itemsEqual = (assets_ids: string[]) => {
-        return (
-            assets_ids.sort((a, b) => a.localeCompare(b)).toString() ===
-            this.assetsIds.toString()
-        );
+    isCanceled = () => {
+        return this.tradeOfferState === TradeOfferState.CANCELED;
+    };
+
+    // checks if this offer has the same assetsIds
+    hasItems = (assetsIds: string[]) => {
+        return this.assetsIds.every((id) => assetsIds.includes(id));
     };
 }

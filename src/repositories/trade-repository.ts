@@ -1,3 +1,4 @@
+import { TradeOfferState } from "./../classes/SteamTradeOfferTrackerBase";
 import axios, { Axios } from "axios";
 
 import { TradeOffer } from "../classes/TradeOffer";
@@ -17,15 +18,17 @@ export interface ITradeRepository {
 }
 
 export class TradeRepository implements ITradeRepository {
-    api: Axios;
+    private api: Axios;
 
-    constructor() {
+    constructor(
+        private timeHistoricalCutOff: number = 15 * 60 /* Default 15 minutes */
+    ) {
         this.api = axios.create({
             baseURL: "https://api.steampowered.com/IEconService",
         });
     }
 
-    async findUserTrades(steamApiKey: string): Promise<TradeOffer[]> {
+    findUserTrades = async (steamApiKey: string): Promise<TradeOffer[]> => {
         const offers = [];
         let cursor = 0;
 
@@ -34,9 +37,10 @@ export class TradeRepository implements ITradeRepository {
                 "/GetTradeOffers/v1",
                 {
                     params: {
+                        key: steamApiKey,
                         get_sent_offers: true,
                         get_received_offers: true,
-                        time_historical_cutoff: 15 * 60,
+                        time_historical_cutoff: this.timeHistoricalCutOff,
                         cursor,
                     },
                 }
@@ -51,9 +55,13 @@ export class TradeRepository implements ITradeRepository {
         }
 
         return offers.map((offer) => new TradeOffer(offer));
-    }
+    };
 
-    async cancelTrade(steamApiKey: string, tradeId: string): Promise<void> {
+    // Unused for now
+    cancelTrade = async (
+        steamApiKey: string,
+        tradeId: string
+    ): Promise<void> => {
         await this.api.post(
             `/CancelTradeOffer/v1`,
             {},
@@ -64,5 +72,5 @@ export class TradeRepository implements ITradeRepository {
                 },
             }
         );
-    }
+    };
 }

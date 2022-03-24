@@ -1,3 +1,5 @@
+import SteamID from "steamid";
+
 import { ITradeRepository } from "../repositories/trade-repository";
 import { EventEmitterType } from "./EventEmmiterType";
 
@@ -57,74 +59,214 @@ interface TrackedTrade {
 }
 
 export interface SteamTradeOfferTrackerConfig {
-    cancel_invalid_offers?: boolean;
-    time_historical_cutoff?: number;
+    /**
+     * The time span in which trades will be retrieved
+     * Defaults to 15 minutes
+     *
+     * Trades from the past 'x' minutes will be retrieved
+     */
+    timeHistoricalCutOff?: number;
+}
+
+interface CompromisedApiKeyTrades {
+    /** Partner's Id */
+    partnerId: string;
+    /** Partner's Steam 64 Id */
+    partnerSteamId: string;
+    /** The assets ids of the items present in the trade */
+    assetsIds: string[];
 }
 
 interface SteamTradeOfferEvents {
-    compromisedApiKey: [{}];
-    wrongItem: [{}];
-    wrongPartner: [{}];
+    compromisedApiKey: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** The original trade that was canceled */
+            originalTrade: CompromisedApiKeyTrades;
+            /** The identical trade that was created and sent to another partner */
+            suspiciousTrade: CompromisedApiKeyTrades;
+        }
+    ];
+    wrongItems: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** Partner's Id */
+            partnerId: string;
+            /** The items' assets ids that were expected to be in the trade */
+            expectedAssetsIds: string[];
+            /** The item's assets ids that were present in the trade */
+            offerAssetsIds: string[];
+        }
+    ];
+    wrongPartner: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** The trade's partner id */
+            offerPartnerId: string;
+            /** Expected Partner Id */
+            expectedPartnerId: string;
+            /** The assets ids of the items present in the trade */
+            assetsIds: string[];
+        }
+    ];
+    tradeSent: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** Partner's Id */
+            partnerId: string;
+            /** The assets ids of the items present in the trade */
+            assetsIds: string[];
+        }
+    ];
+    tradeAccepted: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** Partner's Id */
+            partnerId: string;
+            /** The assets ids of the items present in the trade */
+            assetsIds: string[];
+        }
+    ];
+    tradeCanceled: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** Partner's Id */
+            partnerId: string;
+            /** The assets ids of the items present in the trade */
+            assetsIds: string[];
+        }
+    ];
+    tradeDeclined: [
+        {
+            /** Manually created id for reference purposes */
+            tradeId?: string | number;
+            /** Partner's Id */
+            partnerId: string;
+            /** The assets ids of the items present in the trade */
+            assetsIds: string[];
+        }
+    ];
 }
 
 // @ts-ignore
 export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOfferEvents> {
-    time_historical_cutoff: number;
-
-    constructor(
-        private tradeRepository: ITradeRepository,
-        options: SteamTradeOfferTrackerConfig
-    ) {
+    constructor(private tradeRepository: ITradeRepository) {
         super();
-
-        this.time_historical_cutoff = options.time_historical_cutoff ?? 15 * 60; // Default 15 minutes
     }
+
+    getUserSteam3Id = (partnerId: string) => new SteamID(`[U:1:${partnerId}]`);
 
     track = async (steamApiKey: string, trades: TrackedTrade[]) => {
         const offers = await this.tradeRepository.findUserTrades(steamApiKey);
 
         trades.forEach(async (trade) => {
-            const correctTrade = offers.find(
-                (offer) =>
-                    offer.itemsEqual(trade.assetsIds) &&
-                    trade.partnerId === offer.partnerId
-            );
+            // find the trade with the same partner id and assets ids
+            const foundTrade = offers.find((offer) => {
+                return (
+                    offer.partnerId === trade.partnerId &&
+                    offer.assetsIds.length === trade.assetsIds.length
+                );
+            });
 
-            if (correctTrade) {
-                if (correctTrade.tradeOfferState === TradeOfferState.CANCELED) {
-                    // Check if steam api key was comprimised
-                    const suspiciousOffer = offers.find(
-                        (offer) =>
-                            offer.itemsEqual(correctTrade.assetsIds) &&
-                            offer.partnerId !== correctTrade.partnerId &&
-                            !offer.isOurOffer &&
-                            [
-                                TradeOfferState.NEEDS_CONFIRMATION,
-                                TradeOfferState.SENT,
-                            ].includes(offer.tradeOfferState)
+            if (foundTrade) {
+                // if trade is canceled, check if there is another trade with the exact same assets ids but different partner id and is not our offer
+                // if the trade is found, it means that the steam api key is compromised
+                if (foundTrade.tradeOfferState === TradeOfferState.CANCELED) {
+                    const foundTradeWithDifferentPartner = offers.find(
+                        (offer) => {
+                            return (
+                                offer.partnerId !== trade.partnerId &&
+                                offer.hasItems(trade.assetsIds) &&
+                                !offer.isOurOffer
+                            );
+                        }
                     );
 
-                    if (suspiciousOffer) {
-                        this.emit("compromisedApiKey", {});
-                        return;
+                    if (foundTradeWithDifferentPartner) {
+                        this.emit("compromisedApiKey", {
+                            tradeId: trade.tradeId,
+                            originalTrade: {
+                                partnerId: foundTrade.partnerId,
+                                partnerSteamId: this.getUserSteam3Id(
+                                    foundTrade.partnerId
+                                ).getSteamID64(),
+                                assetsIds: foundTrade.assetsIds,
+                            },
+                            suspiciousTrade: {
+                                partnerId:
+                                    foundTradeWithDifferentPartner.partnerId,
+                                partnerSteamId: this.getUserSteam3Id(
+                                    foundTradeWithDifferentPartner.partnerId
+                                ).getSteamID64(),
+                                assetsIds:
+                                    foundTradeWithDifferentPartner.assetsIds,
+                            },
+                        });
+                    } else {
+                        this.emit("tradeCanceled", {
+                            tradeId: trade.tradeId,
+                            partnerId: foundTrade.partnerId,
+                            assetsIds: foundTrade.assetsIds,
+                        });
                     }
+                } else if (
+                    foundTrade.tradeOfferState === TradeOfferState.DECLINED
+                ) {
+                    this.emit("tradeDeclined", {
+                        tradeId: trade.tradeId,
+                        partnerId: foundTrade.partnerId,
+                        assetsIds: foundTrade.assetsIds,
+                    });
+                } else if (
+                    foundTrade.tradeOfferState === TradeOfferState.SENT
+                ) {
+                    this.emit("tradeSent", {
+                        tradeId: trade.tradeId,
+                        partnerId: foundTrade.partnerId,
+                        assetsIds: foundTrade.assetsIds,
+                    });
+                } else if (
+                    foundTrade.tradeOfferState === TradeOfferState.ACCEPTED
+                ) {
+                    this.emit("tradeAccepted", {
+                        tradeId: trade.tradeId,
+                        partnerId: foundTrade.partnerId,
+                        assetsIds: foundTrade.assetsIds,
+                    });
                 }
             } else {
-                const similarTrades = offers.filter(
-                    (offer) =>
-                        (offer.itemsEqual(trade.assetsIds) ||
-                            trade.partnerId === offer.partnerId) &&
-                        [
-                            TradeOfferState.SENT,
-                            TradeOfferState.NEEDS_CONFIRMATION,
-                        ].includes(offer.tradeOfferState)
-                );
+                const foundSimilarTrades = offers.filter((offer) => {
+                    return (
+                        offer.partnerId === trade.partnerId ||
+                        offer.hasItems(trade.assetsIds)
+                    );
+                });
 
-                similarTrades.forEach((similarTrade) => {
-                    if (similarTrade.itemsEqual(trade.assetsIds)) {
-                        this.emit("wrongPartner", {});
-                    } else {
-                        this.emit("wrongItem", {});
+                // for each similar trade, if the partnerId is different from the trade partnerId, emit a "wrongPartner" event
+                // for each similar trade, if the assetsIds are different from the trade assetsIds, emit a "wrongItems" event
+                foundSimilarTrades.forEach((similarTrade) => {
+                    if (similarTrade.partnerId !== trade.partnerId) {
+                        this.emit("wrongPartner", {
+                            tradeId: trade.tradeId,
+                            offerPartnerId: similarTrade.partnerId,
+                            expectedPartnerId: trade.partnerId,
+                            assetsIds: similarTrade.assetsIds,
+                        });
+                    }
+
+                    if (!similarTrade.hasItems(trade.assetsIds)) {
+                        this.emit("wrongItems", {
+                            tradeId: trade.tradeId,
+                            partnerId: similarTrade.partnerId,
+                            expectedAssetsIds: trade.assetsIds,
+                            offerAssetsIds: similarTrade.assetsIds,
+                        });
                     }
                 });
             }
