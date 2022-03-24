@@ -10,9 +10,7 @@
     },
     "license": "MIT",
     "files": [
-        "dist/index.js",
-        "dist/index.d.ts",
-        "dist/lib"
+        "dist"
     ],
     "bugs": {
         "url": "https://github.com/gustavo-dev/steam-trade-offer-tracker/issues"
