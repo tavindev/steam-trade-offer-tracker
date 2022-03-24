@@ -14,15 +14,15 @@ export class InMemoryTradeRepository
         this.offers = [];
     }
 
-    createTrade(trade: TradeOffer): void {
+    createTrade = (trade: TradeOffer): void => {
         this.offers.push(trade);
-    }
+    };
 
-    async findUserTrades(): Promise<TradeOffer[]> {
+    findUserTrades = async (): Promise<TradeOffer[]> => {
         return this.offers;
-    }
+    };
 
-    async cancelTrade(tradeId: string): Promise<void> {
+    cancelTrade = async (tradeId: string): Promise<void> => {
         throw new Error("Method not implemented.");
-    }
+    };
 }
