@@ -4,15 +4,13 @@ import {
 } from "../src/classes/SteamTradeOfferTrackerBase";
 import { TradeOffer } from "../src/classes/TradeOffer";
 import { InMemoryTradeRepository } from "../src/repositories/in-memory/in-memory-trade-repository";
+import { createMockTrade } from "./utils/createMockTrade";
 
 type JestMock = jest.Mock<any, any>;
 
 describe("SteamTradeOfferTrackerBase tests", () => {
     const tradeRepository = new InMemoryTradeRepository();
-    const tradeOfferTracker = new SteamTradeOfferTrackerBase(
-        tradeRepository,
-        {}
-    );
+    const tradeOfferTracker = new SteamTradeOfferTrackerBase(tradeRepository);
 
     beforeEach(() => {
         tradeOfferTracker.emit = jest.fn();
@@ -21,25 +19,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect items sent to the wrong partner", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1000,
-                trade_offer_state: TradeOfferState.NEEDS_CONFIRMATION,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.NEEDS_CONFIRMATION, true)
         );
 
         await tradeOfferTracker.track("", [
@@ -55,48 +35,20 @@ describe("SteamTradeOfferTrackerBase tests", () => {
     });
 
     it("should detect compromised api key", async () => {
+        // create a CANCELED offer to partner 1 with assetsIds ["1"]
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.CANCELED,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.CANCELED, true)
         );
 
+        // create a NEEDS_CONFIRMATION from  to partner 2 with same assetsIds
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 2,
-                time_created: 1101,
-                trade_offer_state: TradeOfferState.NEEDS_CONFIRMATION,
-                tradeofferid: "1",
-                is_our_offer: false,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(
+                2,
+                ["1"],
+                TradeOfferState.NEEDS_CONFIRMATION,
+                false,
+                Date.now() + 1000
+            )
         );
 
         await tradeOfferTracker.track("", [
@@ -113,40 +65,12 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect wrong items", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.SENT,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "2",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.NEEDS_CONFIRMATION, true)
         );
 
         await tradeOfferTracker.track("", [
             {
-                assetsIds: ["1"],
+                assetsIds: ["2"],
                 partnerId: "1",
             },
         ]);
@@ -158,25 +82,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect trade sent", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.SENT,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.SENT, true)
         );
 
         await tradeOfferTracker.track("", [
@@ -193,25 +99,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect trade accepted", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.ACCEPTED,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.ACCEPTED, true)
         );
 
         await tradeOfferTracker.track("", [
@@ -228,25 +116,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect trade canceled", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.CANCELED,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.CANCELED, true)
         );
 
         await tradeOfferTracker.track("", [
@@ -263,25 +133,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
     it("should detect trade declined", async () => {
         tradeRepository.createTrade(
-            new TradeOffer({
-                accountid_other: 1,
-                time_created: 1100,
-                trade_offer_state: TradeOfferState.DECLINED,
-                tradeofferid: "1",
-                is_our_offer: true,
-                items_to_give: [
-                    {
-                        amount: "1",
-                        appid: 730,
-                        assetid: "1",
-                        classid: "1",
-                        contextid: "2",
-                        est_usd: "",
-                        instanceid: "1",
-                        missing: false,
-                    },
-                ],
-            })
+            createMockTrade(1, ["1"], TradeOfferState.DECLINED, true)
         );
 
         await tradeOfferTracker.track("", [

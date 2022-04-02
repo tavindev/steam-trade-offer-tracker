@@ -1,4 +1,8 @@
-import { SteamTradeOffer, TradeOfferState } from "./SteamTradeOfferTrackerBase";
+import {
+    AssetsIds,
+    SteamTradeOffer,
+    TradeOfferState,
+} from "./SteamTradeOfferTrackerBase";
 
 export class TradeOffer {
     id: string;
@@ -31,8 +35,33 @@ export class TradeOffer {
         return this.tradeOfferState === TradeOfferState.CANCELED;
     };
 
-    // checks if this offer has the same assetsIds
-    hasItems = (assetsIds: string[]) => {
-        return this.assetsIds.every((id) => assetsIds.includes(id));
+    isDeclined = () => {
+        return this.tradeOfferState === TradeOfferState.DECLINED;
+    };
+
+    isSent = () => {
+        return this.tradeOfferState === TradeOfferState.SENT;
+    };
+
+    isAccepted = () => {
+        return this.tradeOfferState === TradeOfferState.ACCEPTED;
+    };
+
+    hasItems = (assetsIds: AssetsIds) => {
+        return assetsIds.every((expectedId) => {
+            /**
+             * If expectedId is an array,
+             * check if the intersection length of expectedId and this.assetsIds is equal to 1
+             */
+            if (Array.isArray(expectedId)) {
+                return (
+                    this.assetsIds.filter((actualId) =>
+                        expectedId.includes(actualId)
+                    ).length === 1
+                );
+            }
+
+            return this.assetsIds.includes(expectedId);
+        });
     };
 }
