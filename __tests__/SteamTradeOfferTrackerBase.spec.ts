@@ -1,10 +1,7 @@
-import {
-    SteamTradeOfferTrackerBase,
-    TradeOfferState,
-} from "../src/classes/SteamTradeOfferTrackerBase";
-import { TradeOffer } from "../src/classes/TradeOffer";
-import { InMemoryTradeRepository } from "../src/repositories/in-memory/in-memory-trade-repository";
+import { InMemoryTradeRepository } from "./../src/repositories/in-memory/InMemoryTradeRepository";
+import { SteamTradeOfferTrackerBase } from "../src/classes/SteamTradeOfferTrackerBase";
 import { createMockTrade } from "./utils/createMockTrade";
+import { TradeOfferState } from "../src/types/enums";
 
 type JestMock = jest.Mock<any, any>;
 

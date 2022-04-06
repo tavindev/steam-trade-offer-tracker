@@ -1,4 +1,4 @@
-import { TradeOfferState } from "../src/classes/SteamTradeOfferTrackerBase";
+import { TradeOfferState } from "./../src/types/enums";
 import { createMockTrade } from "./utils/createMockTrade";
 
 describe("TradeOffer Tests", () => {

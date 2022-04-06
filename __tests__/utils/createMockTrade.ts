@@ -1,5 +1,5 @@
-import { TradeOfferState } from "../../src/classes/SteamTradeOfferTrackerBase";
 import { TradeOffer } from "../../src/classes/TradeOffer";
+import { TradeOfferState } from "../../src/types/enums";
 
 export const createMockTrade = (
     partnerId: number,
