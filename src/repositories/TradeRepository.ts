@@ -1,8 +1,9 @@
-import { TradeOfferState } from "./../classes/SteamTradeOfferTrackerBase";
 import axios, { Axios } from "axios";
 
 import { TradeOffer } from "../classes/TradeOffer";
-import { SteamTradeOffer } from "../classes/SteamTradeOfferTrackerBase";
+import { SteamTradeOffer } from "../types/steam";
+
+import { ITradeRepository } from "./interfaces/ITradeRepository";
 
 interface WebApiSentOffer {
     response: {
@@ -10,11 +11,6 @@ interface WebApiSentOffer {
         trade_offers_received?: SteamTradeOffer[];
         next_cursor: number;
     };
-}
-
-export interface ITradeRepository {
-    findUserTrades(steamApiKey: string): Promise<TradeOffer[]>;
-    cancelTrade(steamApiKey: string, tradeId: string): Promise<void>;
 }
 
 export class TradeRepository implements ITradeRepository {

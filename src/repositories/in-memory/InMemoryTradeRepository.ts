@@ -1,5 +1,6 @@
-import { ITradeRepository } from "../trade-repository";
 import { TradeOffer } from "../../classes/TradeOffer";
+
+import { ITradeRepository } from "../interfaces/ITradeRepository";
 
 interface ITradeRepositoryTesting {
     createTrade(trade: TradeOffer): void;

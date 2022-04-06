@@ -1,8 +1,7 @@
-import {
-    AssetsIds,
-    SteamTradeOffer,
-    TradeOfferState,
-} from "./SteamTradeOfferTrackerBase";
+import { AssetsIds } from "../types";
+
+import { TradeOfferState } from "../types/enums";
+import { SteamTradeOffer } from "../types/steam";
 
 export class TradeOffer {
     id: string;

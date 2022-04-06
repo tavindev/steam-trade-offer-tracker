@@ -1,0 +1,13 @@
+export enum TradeOfferState {
+    INVALID = 1,
+    SENT,
+    ACCEPTED,
+    COUNTERED,
+    EXPIRED,
+    CANCELED,
+    DECLINED,
+    INVALID_ITEMS,
+    NEEDS_CONFIRMATION,
+    CANCELED_BY_SECOND_FACTOR,
+    ESCROW,
+}
