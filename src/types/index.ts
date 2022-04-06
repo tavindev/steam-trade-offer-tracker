@@ -1,4 +1,10 @@
+import { AxiosProxyConfig } from "axios";
+
 export type AssetsIds = (string | string[])[];
+
+export interface TradeRepositoryRequestConfig {
+    proxy?: AxiosProxyConfig;
+}
 
 export interface TrackedTrade {
     partnerId: string;

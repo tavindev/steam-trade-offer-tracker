@@ -6,6 +6,9 @@ interface ITradeRepositoryTesting {
     createTrade(trade: TradeOffer): void;
 }
 
+/**
+ * In memory repository used for testing purposes
+ */
 export class InMemoryTradeRepository
     implements ITradeRepository, ITradeRepositoryTesting
 {

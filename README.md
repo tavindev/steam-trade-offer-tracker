@@ -17,6 +17,7 @@ This package is useful for tracking Steam Trade Offers, making sure trades are c
 -   [x] Detect offer sent to wrong partner
 -   [x] Detect offer declined by other party (withdrawer)
 -   [x] Detect offer canceled by party (depositor)
+-   [x] Proxy support
 -   [ ] Cancel trades based on expiry time
 
 ## Installation
@@ -38,6 +39,9 @@ tracker.track("STEAM_API_KEY", [
     {
         partnerId: "188530139",
         assetsIds: ["25224414618", "25223442758"],
+    },
+    {
+        // request options
     },
 ]);
 
@@ -78,14 +82,15 @@ interface Options {
 
 ## API
 
-### async track(steamApiKey, trades)
+### async track(steamApiKey, trades, requestOptions?)
 
 Method to track trades sent trades (depositor side)
 
-| Params      | Type    | Required | Description                 |
-| ----------- | ------- | -------- | --------------------------- |
-| steamApiKey | string  | Yes      | The user's Steam API Key    |
-| trades      | Trade[] | Yes      | An array of trades to track |
+| Params         | Type                         | Required | Description                          |
+| -------------- | ---------------------------- | -------- | ------------------------------------ |
+| steamApiKey    | string                       | Yes      | The user's Steam API Key             |
+| trades         | Trade[]                      | Yes      | An array of trades to track          |
+| requestOptions | TradeRepositoryRequestConfig | No       | An object containing request options |
 
 ```typescript
 interface Trade {
@@ -95,6 +100,10 @@ interface Trade {
     partnerId: string;
     /** Items assets ids that should be in trade  */
     assetsIds: (string | string[])[];
+}
+
+interface TradeRepositoryRequestConfig {
+    proxy?: AxiosProxyConfig;
 }
 ```
 

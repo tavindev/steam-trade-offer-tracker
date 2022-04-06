@@ -1,6 +1,7 @@
 import axios, { Axios } from "axios";
 
 import { TradeOffer } from "../classes/TradeOffer";
+import { TradeRepositoryRequestConfig } from "../types";
 import { SteamTradeOffer } from "../types/steam";
 
 import { ITradeRepository } from "./interfaces/ITradeRepository";
@@ -24,7 +25,10 @@ export class TradeRepository implements ITradeRepository {
         });
     }
 
-    findUserTrades = async (steamApiKey: string): Promise<TradeOffer[]> => {
+    findUserTrades = async (
+        steamApiKey: string,
+        requestOptions?: TradeRepositoryRequestConfig
+    ): Promise<TradeOffer[]> => {
         const offers = [];
         let cursor = 0;
 
@@ -39,6 +43,7 @@ export class TradeRepository implements ITradeRepository {
                         time_historical_cutoff: this.timeHistoricalCutOff,
                         cursor,
                     },
+                    proxy: requestOptions?.proxy,
                 }
             );
 
