@@ -34,6 +34,7 @@ export class TradeOffer {
         return this.tradeOfferState === TradeOfferState.CANCELED;
     };
 
+
     isDeclined = () => {
         return this.tradeOfferState === TradeOfferState.DECLINED;
     };

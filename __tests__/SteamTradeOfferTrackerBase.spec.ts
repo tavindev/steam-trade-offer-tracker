@@ -10,7 +10,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
     const tradeOfferTracker = new SteamTradeOfferTrackerBase(tradeRepository);
 
     beforeEach(() => {
-        tradeOfferTracker.emit = jest.fn();
+        tradeOfferTracker._emit = jest.fn();
         tradeRepository.offers = [];
     });
 
@@ -26,7 +26,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "wrongPartner"
         );
     });
@@ -55,7 +55,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "compromisedApiKey"
         );
     });
@@ -72,7 +72,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "wrongItems"
         );
     });
@@ -89,7 +89,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "tradeSent"
         );
     });
@@ -106,7 +106,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "tradeAccepted"
         );
     });
@@ -123,7 +123,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "tradeCanceled"
         );
     });
@@ -140,7 +140,7 @@ describe("SteamTradeOfferTrackerBase tests", () => {
             },
         ]);
 
-        expect((tradeOfferTracker.emit as JestMock).mock.calls[0][0]).toBe(
+        expect((tradeOfferTracker._emit as JestMock).mock.calls[0][0]).toBe(
             "tradeDeclined"
         );
     });

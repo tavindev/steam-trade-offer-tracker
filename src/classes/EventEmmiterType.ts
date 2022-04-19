@@ -11,18 +11,16 @@ export abstract class EventEmitterType<
         super();
     }
 
-    addListener<K extends keyof T>(
-        event: K,
-        listener: (...args: T[Extract<string, K>]) => void
-    ) {
+    addListener<K extends keyof T>(event: K, listener: (data: T[K]) => void) {
         return super.addListener(event, listener as (...args: any[]) => void);
     }
 
-    on<K extends keyof T>(event: K, listener: (...args: T[K]) => void) {
+    on<K extends keyof T>(event: K, listener: (data: T[K]) => void) {
         return super.on(event, listener as (...args: any[]) => void);
     }
 
-    emit<K extends keyof T>(event: K, ...data: T[K]) {
-        return super.emit(event, data);
+    _emit<K extends keyof T>(event: K, data: T[K]) {
+        super.emit(event, data);
+        return { event, data };
     }
 }

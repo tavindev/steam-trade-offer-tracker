@@ -10,7 +10,7 @@ This package is useful for tracking Steam Trade Offers, making sure trades are c
 
 ## Features
 
--   [x] Event driven architecture
+-   [x] Event driven architecture and Promise responses
 -   [x] Fully typed events
 -   [x] Detect offers that may have compromised API Keys
 -   [x] Detect wrong items sent in offer
@@ -35,7 +35,7 @@ const tracker = new SteamTradeOfferTracker({
     // ...
 });
 
-tracker.track("STEAM_API_KEY", [
+const results = await tracker.track("STEAM_API_KEY", [
     {
         partnerId: "188530139",
         assetsIds: ["25224414618", "25223442758"],
@@ -61,8 +61,24 @@ tracker.on("tradeSent", (data) => {
     // ...
 });
 
-// ...
+// or
+results.forEach((result) => {
+    // ...
+});
 ```
+
+Results come as an array of objects that follow the following interface:
+
+```typescript
+type Result =  {
+    event: T;
+    data: SteamTradeOfferEvents[T];
+} || false
+```
+
+`false` results are default for non implemented events
+
+See [this](https://github.com/gustavo-dev/steam-trade-offer-tracker/blob/master/src/types/index.ts#L34) for reference
 
 ### Class instance
 
