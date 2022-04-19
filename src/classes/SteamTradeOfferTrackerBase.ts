@@ -106,7 +106,7 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
 
                 // for each similar trade, if the partnerId is different from the trade partnerId, emit a "wrongPartner" event
                 // for each similar trade, if the assetsIds are different from the trade assetsIds, emit a "wrongItems" event
-                foundSimilarTrades.forEach((similarTrade) => {
+                for (const similarTrade of foundSimilarTrades) {
                     if (similarTrade.partnerId !== trade.partnerId) {
                         return this._emit("wrongPartner", {
                             tradeId: trade.tradeId,
@@ -124,7 +124,7 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                             offerAssetsIds: similarTrade.assetsIds,
                         });
                     }
-                });
+                }
 
                 return false;
             })
