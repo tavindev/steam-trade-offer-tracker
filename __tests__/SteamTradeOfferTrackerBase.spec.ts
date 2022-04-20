@@ -101,8 +101,8 @@ describe("SteamTradeOfferTrackerBase tests", () => {
     it("should detect trade sent", async () => {
         tradeRepository.createTrade(
             createMockTrade(
-                1160131656,
-                ["18869624949"],
+                1160131655,
+                ["18869624948"],
                 TradeOfferState.SENT,
                 true
             )
@@ -110,8 +110,8 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
         const result = await tradeOfferTracker.track("", [
             {
-                assetsIds: ["18869624949"],
-                partnerId: "1160131656",
+                assetsIds: ["18869624948"],
+                partnerId: "1160131655",
             },
         ]);
 
@@ -193,5 +193,27 @@ describe("SteamTradeOfferTrackerBase tests", () => {
                 return trade.event === "tradeDeclined";
             })
         ).toBeTruthy();
+    });
+
+    it("should return none for trades created now", async () => {
+        tradeRepository.createTrade(
+            createMockTrade(
+                1,
+                ["1"],
+                TradeOfferState.DECLINED,
+                true,
+                (Date.now() - 1000) / 1000
+            )
+        );
+
+        const result = await tradeOfferTracker.track("", [
+            {
+                assetsIds: ["1"],
+                partnerId: "1",
+                createdAt: Date.now(),
+            },
+        ]);
+
+        expect(result).toEqual([false]);
     });
 });

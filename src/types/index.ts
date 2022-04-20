@@ -10,6 +10,8 @@ export interface TrackedTrade {
     partnerId: string;
     assetsIds: AssetsIds;
     tradeId?: string | number;
+    /** Epoch time in milliseconds */
+    createdAt?: number;
 }
 
 export interface SteamTradeOfferTrackerConfig {

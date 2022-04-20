@@ -39,6 +39,7 @@ const results = await tracker.track("STEAM_API_KEY", [
     {
         partnerId: "188530139",
         assetsIds: ["25224414618", "25223442758"],
+        createdAt: 1650419071564,
     },
     {
         // request options
@@ -116,6 +117,12 @@ interface Trade {
     partnerId: string;
     /** Items assets ids that should be in trade  */
     assetsIds: (string | string[])[];
+    /**
+     * Time since epoch in milliseconds when the trade was created
+     * If provided, steam trades created before that time will not be
+     * checked and compared to this trade.
+     */
+    createdAt?: number;
 }
 
 interface TradeRepositoryRequestConfig {

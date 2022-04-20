@@ -19,8 +19,12 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
 
         const results = await Promise.all(
             trades.map(async (trade) => {
+                const offersFiltered = offers.filter(
+                    (offer) => (trade.createdAt ?? 0) < offer.timeCreated * 1000
+                );
+
                 // find the trade with the same partner id and assets ids
-                const foundTrade = offers.find((offer) => {
+                const foundTrade = offersFiltered.find((offer) => {
                     return (
                         offer.partnerId === trade.partnerId &&
                         offer.hasItems(trade.assetsIds)
@@ -31,8 +35,8 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                     // if trade is canceled, check if there is another trade with the exact same assets ids but different partner id and is not our offer
                     // if the trade is found, it means that the steam api key is compromised
                     if (foundTrade.isCanceled()) {
-                        const foundTradeWithDifferentPartner = offers.find(
-                            (offer) => {
+                        const foundTradeWithDifferentPartner =
+                            offersFiltered.find((offer) => {
                                 return (
                                     offer.partnerId !== trade.partnerId &&
                                     offer.hasItems(trade.assetsIds) &&
@@ -40,8 +44,7 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                                     offer.timeCreated - foundTrade.timeCreated >
                                         0
                                 );
-                            }
-                        );
+                            });
 
                         if (foundTradeWithDifferentPartner) {
                             return this._emit("compromisedApiKey", {
@@ -97,7 +100,7 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                     }
                 }
 
-                const foundSimilarTrades = offers.filter((offer) => {
+                const foundSimilarTrades = offersFiltered.filter((offer) => {
                     return (
                         offer.partnerId === trade.partnerId ||
                         offer.hasItems(trade.assetsIds)
