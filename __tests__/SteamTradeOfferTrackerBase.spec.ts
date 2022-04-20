@@ -216,4 +216,27 @@ describe("SteamTradeOfferTrackerBase tests", () => {
 
         expect(result).toEqual([false]);
     });
+
+    it("should not send compromisedApiKey for canceled compromised trades", async () => {
+        tradeRepository.createTrade(
+            createMockTrade(1, ["1"], TradeOfferState.CANCELED, true)
+        );
+
+        tradeRepository.createTrade(
+            createMockTrade(2, ["1"], TradeOfferState.CANCELED, false)
+        );
+
+        const result = await tradeOfferTracker.track("", [
+            {
+                assetsIds: ["1"],
+                partnerId: "1",
+            },
+        ]);
+
+        expect(
+            result.filter(Boolean as any as ExcludesFalse).find((trade) => {
+                return trade.event === "compromisedApiKey";
+            })
+        ).toBeFalsy();
+    });
 });

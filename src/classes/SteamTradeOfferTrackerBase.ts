@@ -47,25 +47,26 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                             });
 
                         if (foundTradeWithDifferentPartner) {
-                            return this._emit("compromisedApiKey", {
-                                tradeId: trade.tradeId,
-                                originalTrade: {
-                                    partnerId: foundTrade.partnerId,
-                                    partnerSteamId: this.getUserSteam3Id(
-                                        foundTrade.partnerId
-                                    ).getSteamID64(),
-                                    assetsIds: foundTrade.assetsIds,
-                                },
-                                suspiciousTrade: {
-                                    partnerId:
-                                        foundTradeWithDifferentPartner.partnerId,
-                                    partnerSteamId: this.getUserSteam3Id(
-                                        foundTradeWithDifferentPartner.partnerId
-                                    ).getSteamID64(),
-                                    assetsIds:
-                                        foundTradeWithDifferentPartner.assetsIds,
-                                },
-                            });
+                            if (foundTradeWithDifferentPartner.isCancelable())
+                                return this._emit("compromisedApiKey", {
+                                    tradeId: trade.tradeId,
+                                    originalTrade: {
+                                        partnerId: foundTrade.partnerId,
+                                        partnerSteamId: this.getUserSteam3Id(
+                                            foundTrade.partnerId
+                                        ).getSteamID64(),
+                                        assetsIds: foundTrade.assetsIds,
+                                    },
+                                    suspiciousTrade: {
+                                        partnerId:
+                                            foundTradeWithDifferentPartner.partnerId,
+                                        partnerSteamId: this.getUserSteam3Id(
+                                            foundTradeWithDifferentPartner.partnerId
+                                        ).getSteamID64(),
+                                        assetsIds:
+                                            foundTradeWithDifferentPartner.assetsIds,
+                                    },
+                                });
                         }
 
                         return this._emit("tradeCanceled", {
@@ -111,21 +112,23 @@ export class SteamTradeOfferTrackerBase extends EventEmitterType<SteamTradeOffer
                 // for each similar trade, if the assetsIds are different from the trade assetsIds, emit a "wrongItems" event
                 for (const similarTrade of foundSimilarTrades) {
                     if (similarTrade.partnerId !== trade.partnerId) {
-                        return this._emit("wrongPartner", {
-                            tradeId: trade.tradeId,
-                            offerPartnerId: similarTrade.partnerId,
-                            expectedPartnerId: trade.partnerId,
-                            assetsIds: similarTrade.assetsIds,
-                        });
+                        if (similarTrade.isCancelable())
+                            return this._emit("wrongPartner", {
+                                tradeId: trade.tradeId,
+                                offerPartnerId: similarTrade.partnerId,
+                                expectedPartnerId: trade.partnerId,
+                                assetsIds: similarTrade.assetsIds,
+                            });
                     }
 
                     if (!similarTrade.hasItems(trade.assetsIds)) {
-                        return this._emit("wrongItems", {
-                            tradeId: trade.tradeId,
-                            partnerId: similarTrade.partnerId,
-                            expectedAssetsIds: trade.assetsIds,
-                            offerAssetsIds: similarTrade.assetsIds,
-                        });
+                        if (similarTrade.isCancelable())
+                            return this._emit("wrongItems", {
+                                tradeId: trade.tradeId,
+                                partnerId: similarTrade.partnerId,
+                                expectedAssetsIds: trade.assetsIds,
+                                offerAssetsIds: similarTrade.assetsIds,
+                            });
                     }
                 }
 

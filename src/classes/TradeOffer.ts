@@ -34,7 +34,6 @@ export class TradeOffer {
         return this.tradeOfferState === TradeOfferState.CANCELED;
     };
 
-
     isDeclined = () => {
         return this.tradeOfferState === TradeOfferState.DECLINED;
     };
@@ -45,6 +44,14 @@ export class TradeOffer {
 
     isAccepted = () => {
         return this.tradeOfferState === TradeOfferState.ACCEPTED;
+    };
+
+    isNeedingConfirmation = () => {
+        return this.tradeOfferState === TradeOfferState.NEEDS_CONFIRMATION;
+    };
+
+    isCancelable = () => {
+        return this.isNeedingConfirmation() || this.isSent();
     };
 
     hasItems = (assetsIds: AssetsIds) => {
