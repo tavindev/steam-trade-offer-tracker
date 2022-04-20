@@ -1,6 +1,6 @@
 {
     "name": "steam-trade-offer-tracker",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "main": "dist/index",
     "typings": "dist/index",
     "author": {
